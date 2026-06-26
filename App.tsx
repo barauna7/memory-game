@@ -1,20 +1,30 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { GameProvider, useGame } from './src/state/GameProvider';
+import { MenuScreen } from './src/components/MenuScreen';
+import { GameScreen } from './src/components/GameScreen';
+import { ResultScreen } from './src/components/ResultScreen';
+import { GameOverScreen } from './src/components/GameOverScreen';
+
+function Router() {
+  const { screen, round } = useGame();
+
+  switch (screen) {
+    case 'playing':
+      // `round` as key remounts the game for a fresh deck + timer on replay.
+      return <GameScreen key={round} />;
+    case 'result':
+      return <ResultScreen />;
+    case 'gameover':
+      return <GameOverScreen />;
+    case 'menu':
+    default:
+      return <MenuScreen />;
+  }
+}
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GameProvider>
+      <Router />
+    </GameProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
