@@ -8,7 +8,7 @@ import {
 } from 'react';
 import type { Level } from '../lib/levels';
 
-export type Screen = 'menu' | 'playing' | 'result' | 'gameover';
+export type Screen = 'menu' | 'playing' | 'result' | 'gameover' | 'leaderboard';
 
 export interface GameResult {
   readonly moves: number;
@@ -30,6 +30,7 @@ type Action =
   | { type: 'WIN'; result: GameResult }
   | { type: 'LOSE' }
   | { type: 'REPLAY' }
+  | { type: 'LEADERBOARD' }
   | { type: 'MENU' };
 
 const initialState: SessionState = {
@@ -54,6 +55,8 @@ function reducer(state: SessionState, action: Action): SessionState {
       return { ...state, screen: 'gameover', result: null };
     case 'REPLAY':
       return { ...state, screen: 'playing', result: null, round: state.round + 1 };
+    case 'LEADERBOARD':
+      return { ...state, screen: 'leaderboard' };
     case 'MENU':
       return { ...initialState, round: state.round };
     default:
@@ -66,6 +69,7 @@ interface GameContextValue extends SessionState {
   winGame: (result: GameResult) => void;
   loseGame: () => void;
   replay: () => void;
+  goToLeaderboard: () => void;
   goToMenu: () => void;
 }
 
@@ -84,11 +88,23 @@ export function GameProvider({ children }: { children: ReactNode }) {
   );
   const loseGame = useCallback(() => dispatch({ type: 'LOSE' }), []);
   const replay = useCallback(() => dispatch({ type: 'REPLAY' }), []);
+  const goToLeaderboard = useCallback(
+    () => dispatch({ type: 'LEADERBOARD' }),
+    [],
+  );
   const goToMenu = useCallback(() => dispatch({ type: 'MENU' }), []);
 
   const value = useMemo<GameContextValue>(
-    () => ({ ...state, startGame, winGame, loseGame, replay, goToMenu }),
-    [state, startGame, winGame, loseGame, replay, goToMenu],
+    () => ({
+      ...state,
+      startGame,
+      winGame,
+      loseGame,
+      replay,
+      goToLeaderboard,
+      goToMenu,
+    }),
+    [state, startGame, winGame, loseGame, replay, goToLeaderboard, goToMenu],
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

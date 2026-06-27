@@ -1,6 +1,6 @@
 # 🧠 Jogo da Memória
 
-Jogo da memória em **React Native + Expo (TypeScript)** com níveis de dificuldade, timer regressivo, sistema de estrelas e testes unitários. Lógica de jogo 100% pura e testável, separada da camada de UI.
+Jogo da memória em **React Native + Expo (TypeScript)** com níveis de dificuldade, timer regressivo, sistema de estrelas, **placar online (Supabase)** e testes unitários. Lógica de jogo 100% pura e testável, separada da camada de UI.
 
 <!-- Substitua pelos prints reais depois de capturar no simulador -->
 <p align="center">
@@ -20,6 +20,7 @@ Jogo da memória em **React Native + Expo (TypeScript)** com níveis de dificuld
 - **Timer regressivo** que avisa nos últimos 10s e leva a game over ao zerar.
 - **Tela de resultado** com estrelas animadas (3 ⭐ > 70% do tempo restante, 2 ⭐ > 30%, 1 ⭐ por completar), total de jogadas e tempo gasto.
 - **Cartas com animação de flip 3D** usando a API `Animated` com `useNativeDriver`.
+- **Placar online** com Supabase: registre seu score ao vencer e veja o ranking por nível.
 - **Estado global** de navegação e nível via Context + reducer.
 
 ## 🏗️ Arquitetura
@@ -34,13 +35,17 @@ src/
 │   ├── levels.ts      # definição dos níveis
 │   ├── stars.ts       # cálculo de estrelas
 │   ├── format.ts      # formatação de tempo (m:ss)
-│   └── theme.ts       # design tokens
+│   ├── theme.ts       # design tokens
+│   ├── supabase.ts    # client Supabase (valida env vars)
+│   └── leaderboard.ts # acesso ao placar: submitScore, fetchTopScores
 ├── state/
-│   └── GameProvider.tsx   # Context + reducer (screen, level, result, round)
+│   └── GameProvider.tsx    # Context + reducer (screen, level, result, round)
 ├── hooks/
-│   └── useMemoryGame.ts    # estado do jogo + timing de virar cartas
+│   ├── useMemoryGame.ts    # estado do jogo + timing de virar cartas
+│   └── useLeaderboard.ts   # carrega o placar (loading/erro)
 └── components/
     ├── MenuScreen.tsx · GameScreen.tsx · ResultScreen.tsx · GameOverScreen.tsx
+    ├── LeaderboardScreen.tsx · SaveScoreForm.tsx
     ├── Board.tsx · Card.tsx · Stats.tsx · Timer.tsx · Stars.tsx · ActionButton.tsx
 ```
 
@@ -53,8 +58,25 @@ src/
 
 ```bash
 npm install
-npm run ios       # ou: npm run android · npm run web
+cp .env.example .env   # preencha com as credenciais do seu projeto Supabase
+npm run ios            # ou: npm run android · npm run web
 ```
+
+## 🗄️ Backend (Supabase)
+
+O placar usa uma única tabela `public.scores` com Row Level Security:
+
+- **Leitura** pública (qualquer um vê o ranking).
+- **Inserção** pública, validada por _constraints_ de coluna (nome 1–24 chars, nível válido, estrelas 1–3).
+
+A configuração vai por variáveis de ambiente (prefixo `EXPO_PUBLIC_` para chegar ao cliente). Copie `.env.example` para `.env` e preencha:
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_xxxxx
+```
+
+> O `.env` está no `.gitignore` — apenas o `.env.example` é versionado.
 
 ## 🧪 Testes
 
@@ -69,7 +91,7 @@ Cobrem a lógica pura em `src/lib/game.ts`:
 
 ## 🛠️ Stack
 
-React Native · Expo SDK 56 · TypeScript · Jest
+React Native · Expo SDK 56 · TypeScript · Supabase · Jest
 
 ---
 

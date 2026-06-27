@@ -6,7 +6,7 @@ import { useGame } from '../state/GameProvider';
 import { theme } from '../lib/theme';
 
 export function MenuScreen() {
-  const { startGame } = useGame();
+  const { startGame, goToLeaderboard } = useGame();
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -22,6 +22,13 @@ export function MenuScreen() {
           <LevelCard key={id} level={LEVELS[id]} onSelect={startGame} />
         ))}
       </View>
+
+      <Pressable
+        style={({ pressed }) => [styles.leaderboard, pressed && styles.leaderboardPressed]}
+        onPress={goToLeaderboard}
+      >
+        <Text style={styles.leaderboardText}>🏆 Ver placar</Text>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -75,6 +82,20 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: theme.space.md,
+  },
+  leaderboard: {
+    marginTop: theme.space.lg,
+    alignSelf: 'center',
+    paddingVertical: theme.space.sm,
+    paddingHorizontal: theme.space.lg,
+  },
+  leaderboardPressed: {
+    opacity: 0.6,
+  },
+  leaderboardText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.color.accentSoft,
   },
   card: {
     flexDirection: 'row',

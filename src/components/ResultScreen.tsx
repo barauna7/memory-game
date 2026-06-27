@@ -2,12 +2,13 @@ import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Stars } from './Stars';
 import { ActionButton } from './ActionButton';
+import { SaveScoreForm } from './SaveScoreForm';
 import { formatTime } from '../lib/format';
 import { useGame } from '../state/GameProvider';
 import { theme } from '../lib/theme';
 
 export function ResultScreen() {
-  const { result, replay, goToMenu } = useGame();
+  const { result, level, replay, goToLeaderboard, goToMenu } = useGame();
 
   if (!result) return null;
 
@@ -26,10 +27,22 @@ export function ResultScreen() {
           <Metric label="Jogadas" value={String(result.moves)} />
           <Metric label="Tempo" value={formatTime(elapsed)} />
         </View>
+
+        {level && (
+          <SaveScoreForm
+            level={level.id}
+            moves={result.moves}
+            secondsLeft={result.secondsLeft}
+            secondsTotal={result.secondsTotal}
+            stars={result.stars}
+            onSaved={goToLeaderboard}
+          />
+        )}
       </View>
 
       <View style={styles.actions}>
         <ActionButton label="Jogar de novo" onPress={replay} />
+        <ActionButton label="🏆 Placar" variant="ghost" onPress={goToLeaderboard} />
         <ActionButton label="Menu" variant="ghost" onPress={goToMenu} />
       </View>
     </SafeAreaView>
